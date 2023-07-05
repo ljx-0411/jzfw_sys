@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.BaseFileExtendMapper">
+
+  <select id="perMonthImport" resultType="com.jzfw.vm.Pair">
+  	SELECT d as k,count(*) as v
+	FROM ((SELECT *,from_unixtime(FLOOR(`upload_time`/1000),'%Y-%m-%d') AS d FROM base_file) AS f),file_dataset_file as df , file_dataset as d
+	WHERE f.id = df.file_id
+	AND d.id = df.dataset_id
+	GROUP By d
+  </select>
+  
+  <select id="query" resultMap="BaseFileExtendResultMap"> 
+		SELECT f.* 
+		FROM ((SELECT *,from_unixtime(FLOOR(`upload_time`/1000),'%Y-%m-%d') AS upload_date FROM base_file) AS f),file_dataset_file as df , file_dataset as d
+		WHERE f.id = df.file_id
+		AND d.id = df.dataset_id
+		<if test="fileName != null">
+			AND f.file_name like concat('%',#{fileName},'%')
+		</if>
+		<if test="datasetId != null">
+			AND df.dataset_id = #{datasetId}
+		</if>
+		<if test="uploadDate != null">
+			AND f.upload_date = #{uploadDate}
+		</if>
+		ORDER BY f.id DESC
+		limit ${(page-1)*pageSize},${pageSize} 
+  </select>
+  
+  <select id="count" resultType="long">
+  		SELECT count(*) 
+		FROM ((SELECT *,from_unixtime(FLOOR(`upload_time`/1000),'%Y-%m-%d') AS upload_date FROM base_file) AS f),file_dataset_file as df , file_dataset as d
+		WHERE f.id = df.file_id
+		AND d.id = df.dataset_id
+		<if test="fileName != null">
+			AND f.file_name like concat('%',#{fileName},'%')
+		</if>
+		<if test="datasetId != null">
+			AND df.dataset_id = #{datasetId}
+		</if>
+		<if test="uploadDate != null">
+			AND f.upload_date = #{uploadDate}
+		</if>
+  </select>
+  <!-- 用户角色结果集 -->
+  <resultMap
+          id="BaseFileExtendResultMap"
+          type="com.jzfw.bean.extend.BaseFileExtend"
+          extends="com.jzfw.dao.BaseFileMapper.BaseResultMap">
+ 	<result column="upload_date" property="uploadDate" />
+  </resultMap>
+
+</mapper>

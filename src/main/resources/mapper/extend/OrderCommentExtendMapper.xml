@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.OrderCommentExtendMapper">
+
+	<select id="pageQuery"
+		resultMap="com.jzfw.dao.OrderCommentMapper.BaseResultMap">
+		SELECT *
+		FROM jz_order_comment
+		<where>
+			<if test="content != null">
+				AND content like concat('%',#{content},'%')
+			</if>
+			<if test="status != null">
+				AND status = #{ status }
+			</if>
+		</where>
+		ORDER BY id DESC
+		limit ${(page-1)*pageSize},${pageSize}
+	</select>
+	
+	<select id="selectByOrderId" resultMap="com.jzfw.dao.OrderCommentMapper.BaseResultMap">
+		SELECT *
+		FROM jz_order_comment
+		WHERE order_id = #{id}
+	</select>
+
+	<select id="count" resultType="long">
+		SELECT count(*)
+		FROM jz_order_comment
+		<where>
+			<if test="content != null">
+				AND content like concat('%',#{content},'%')
+			</if>
+			<if test="status != null">
+				AND status = #{ status }
+			</if>
+		</where>
+	</select>
+</mapper>

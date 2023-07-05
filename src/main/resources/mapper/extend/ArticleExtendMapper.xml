@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.ArticleExtendMapper">
+	<select id="query" resultMap="ArticleExtendResultMap">
+		SELECT *
+		FROM cms_article a LEFT JOIN cms_category c
+		ON a.category_id = c.id
+		<where>
+			<if test="title != null">
+				AND title like concat('%',#{title},'%')
+			</if>
+			<if test="status != null">
+				AND status like concat('%',#{status},'%')
+			</if>
+			<if test="authorId != null">
+				AND author_id = #{authorId}
+			</if>
+			<if test="categoryId != null">
+				AND c.id = #{categoryId}
+			</if>
+		</where>
+		ORDER BY a.id DESC
+		limit ${(page-1)*pageSize},${pageSize}
+	</select>
+
+	<select id="count" resultType="long">
+		SELECT count(*)
+		FROM cms_article a LEFT JOIN cms_category c
+		ON a.category_id = c.id
+		<where>
+			<if test="title != null">
+				AND title like concat('%',#{title},'%')
+			</if>
+			<if test="status != null">
+				AND status like concat('%',#{status},'%')
+			</if>
+			<if test="authorId != null">
+				AND author_id = #{authorId}
+			</if>
+			<if test="categoryId != null">
+				AND c.id = #{categoryId}
+			</if>
+		</where>
+	</select>	
+	
+  <select id="selectAll" resultMap="ArticleExtendResultMap">
+    SELECT * FROM cms_article
+  </select>
+
+  <select id="selectById" parameterType="long" resultMap="ArticleExtendResultMap">
+    SELECT * FROM  cms_article
+    WHERE id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="findAllRecommend" resultMap="ArticleExtendResultMap">
+  		SELECT * FROM cms_article
+  		where status = '推荐'
+  		limit ${(page-1)*pageSize},${pageSize}
+  </select>
+  
+  <select id="countRecommend" resultType="long">
+  		SELECT count(*) FROM cms_article
+  		where status = '推荐'
+  </select>
+
+  <resultMap id="ArticleExtendResultMap"
+             type="com.jzfw.bean.extend.ArticleExtend"
+             extends="com.jzfw.dao.ArticleMapper.BaseResultMap">
+   	<association
+            property="category"
+            column="category_id"
+            select="com.jzfw.dao.CategoryMapper.selectByPrimaryKey"></association>
+    <association
+            property="baseUser"
+            column="author_id"
+            select="com.jzfw.dao.BaseUserMapper.selectByPrimaryKey"></association>
+    <collection property="comments" column="id" select="com.jzfw.dao.extend.CommentExtendMapper.selectByArticleId"></collection>
+ 
+  </resultMap>
+
+</mapper>

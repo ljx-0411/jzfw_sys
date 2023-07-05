@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.CommentExtendMapper">
+  <select id="selectByArticleId" parameterType="long" resultMap="CommentExtendResultMap">
+      SELECT *
+      FROM cms_comment
+      where article_id = #{article_id,jdbcType=BIGINT}
+  </select>
+  
+  
+  <select id="pageQuery" resultMap="CommentExtendResultMap">
+		SELECT *
+		FROM cms_comment
+		<where>
+			<if test="keywords != null">
+				comment like concat('%',#{keywords},'%')
+			</if>
+		</where>
+		limit ${(page-1)*pageSize},${pageSize}
+	</select>
+
+	<select id="count" resultType="long">
+		SELECT count(*)
+		FROM cms_comment
+		<where>
+			<if test="keywords != null">
+				comment like concat('%',#{keywords},'%')
+			</if>
+		</where>
+	</select>	
+	
+	<resultMap type="com.jzfw.bean.extend.CommentExtend" id="CommentExtendResultMap"
+			   extends="com.jzfw.dao.CommentMapper.BaseResultMap">
+		<association property="baseUser" column="user_id" select="com.jzfw.dao.BaseUserMapper.selectByPrimaryKey"></association>
+	</resultMap>
+</mapper>

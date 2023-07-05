@@ -1,0 +1,57 @@
+package com.jzfw.controller;
+
+import com.alipay.easysdk.factory.Factory;
+import com.alipay.easysdk.factory.Factory.Payment;
+import com.alipay.easysdk.kernel.Config;
+import com.alipay.easysdk.payment.facetoface.models.AlipayTradePrecreateResponse;
+import com.jzfw.service.AlipayService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@Api(
+   description = "jzfw-支付相关接口"
+)
+@Validated
+@RestController
+@RequestMapping({"/alipay"})
+public class AlipayController {
+   @Autowired
+   private AlipayService alipayService;
+
+   @GetMapping({"/create"})
+   @ResponseBody
+   public String create(@RequestParam("orderId") String orderId, @RequestParam("returnUrl") String returnUrl) {
+      String payUrl = this.alipayService.create(orderId, returnUrl);
+      return payUrl;
+   }
+
+   @PostMapping({"/notify"})
+   public void notify(HttpServletRequest request) {
+      this.alipayService.notify();
+   }
+
+   @ApiOperation("支付测试")
+   @GetMapping({"test"})
+   public String test(HttpServletResponse response) throws Exception {
+      Config config = new Config();
+      config.protocol = "https";
+      config.gatewayHost = "openapi.alipaydev.com";
+      config.signType = "RSA2";
+      config.appId = "2021000117652166";
+      config.merchantPrivateKey = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCG3NFyhefk/sHtxU+6jy9jkcQI/SkwNuYHkhZ69GqCd25K/ZHyorKnFylk6p3/1Y6nw5WyWBPHZSBlrmHymBqWYAAYDmvUI/K5u5sGk5FmPlInMpKXHPPGdZlpTdB7CP5Uun3x1Yll94jL509WXtABBjMrZmnlXD6JPU4nGn3J6q34PygYFNwVyy81pVq8e3IY7+OklxEoayyMYirtR5QTgDnCmFEP1tr54gaKMeAJm1MZE0b5ReC2QTYqlMX5tDGFIiDNLNysg5eZYIyKB0NRfEdFxH1hVN0FSa9qL2WgDyWX6agfjfO5+DRVxBr/FDV4tCRWI9ayo6qNSeeNPe9bAgMBAAECggEAKWvvRK6OMA5zP/VnbJSH6Jwfyub+3JkwA8lB8Ffb0uCd1piVWCHSn3GEvEM3bhmIrExtUQ6uXILZ9YEfAmTnXaJ0xO7A/bJg3d0aW2W9tdqUXwewcItq8Fy0VtyYmQGFJD73aey9O71QndgYzR1n47ikxMK66cBwULSsqWQAmKBxisSx0DaZBq+51c7lfbmJM4YvI2Y/N9H+IkmgYRjPJ8ekGdAnvDrjq6YQt4NXtcf4XLIxDOzWwDSfOCCnbx090Xf14QAllx4+s3p9CmIXX1qUT6+befmpVwivFsNscPnDSisgZuKXlNQryy09L6Ji87zx7oueyluBjsgHQHa+cQKBgQDX6R35YrhJ4NBWohlRiyhQZonrEH687wnY1wgIOKkcIYNa8pir+AKhxcHKLAz4LsJosE48zdt8ks28YyCsZZIAJnwUpSZelUtUHzG4g7DuFbSsyf8B6D8Zg5yXnXxilTlC0tUy3es9BFSt8zB1gK/e2jh4J9b0Ize8dnBh94Vu8wKBgQCf5z45D+IEibKJp5GJ+sosOgFQBROaT+Amsim1tA6Zg2HW/3V1Cil15k7a8NUcPRXBsMjVOSPCetTdUCkbjYl9Mqw2FoZthAyucFy7xfHJrG+jNGLxAUru+v4XlyZswwB2UxifTUXKULZNLNsKX8+H2UeSPiCPAOM2g7IBtLon+QKBgQCDwnVSTVZdb150n/OHeb6eYhTkaGqPbei6dW8nZTx+OE1q4QUeXPluM7qxX/SCODbXoE/+dznsacI3pt63ljxk7xdlmesyaTVRHsA+886zXHenwpVmWo63SUP0mlzf5GTPTM5ifl8iG1R52yDFdETfYJh5awaYci1/S2AFyQGa1QKBgEOrAkP3mrg85VcnmImBngj1SxTn8RG+d6cogkootnz0gnUPik9LS5xfKEOy4xyeJRTgkTzaf22PuYEmqR7F2McoqIQDKEQ0O4Gefz/fVqD33g583toKqAFWKi0lg9dG9m0cYTEY7E3ftiYWs2NChHqC0qzqqbCauYyaUrwyFQ1RAoGBAK47mHWJprL9FtFsC6VooGTDeWjt6h/ZPoreAgRMFPC1I5uwussc7JLQruMHx3izg5wt0ilDWvS0LJRHnsTygzavQTFFnt+Eiz/ACmDoaeksW6x9PAFxamCXVuRILTVisnP52aY6p6EzQIjVAtsOE4sEY1e4ED9tHgyFuGc2eexT";
+      config.alipayPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvcpW8SlAoks+sdUkSn03icT8A+a7SvHpaIvQha1sfJ7ZTZMZnxqgab6CiOw6AtoFWVnpLl6d5R7YaEUO2obuGQTfL5LAMtniEptgxw8SbLJ7rmzpsHjlExFGW2TmoXHWBfvR9wWWNw/QFOy9Us2Ov+noOmzoUFJS0rtGIhHqMaSHW9bzKu/7KmrH2md8V6rDvzizs1HMNXshY7teC/wtI3l1gkDNx7cN3SCbasSh3pHW2x3jw+qflTjn/oOWtLfxi0cCvhUzeXcojifiLMJa/6zGKMjITEVJAgWvARqheZsRiRh92lX8JVHHvzWZsLU2frw3uzIGc3g+KsndG0c/vwIDAQAB";
+      Factory.setOptions(config);
+      AlipayTradePrecreateResponse resp = Payment.FaceToFace().preCreate("Apple iPhone11 128G", "2234567890", "5799.00");
+      return resp.getHttpBody();
+   }
+}

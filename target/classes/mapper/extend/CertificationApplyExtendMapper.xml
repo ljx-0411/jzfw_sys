@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.CertificationApplyExtendMapper">
+
+	<select id="pageQuery"
+		resultMap="com.jzfw.dao.CertificationApplyMapper.BaseResultMap">
+		SELECT *
+		FROM jz_certification_apply
+		<where>
+			<if test="status != null">
+				AND status = #{status}
+			</if>
+			<if test="userId != null">
+				AND user_id = #{userId}
+			</if>
+			<if test="beginTime != null and endTime != null">
+				AND apply_time between #{beginTime} and #{endTime}
+			</if>
+		</where>
+		ORDER BY id DESC
+		limit ${(page-1)*pageSize},${pageSize}
+	</select>
+
+	<select id="count" resultType="long">
+		SELECT count(*)
+		FROM jz_certification_apply
+		<where>
+			<if test="status != null">
+				AND status = #{status}
+			</if>
+			<if test="userId != null">
+				AND user_id = #{userId}
+			</if>
+			<if test="beginTime != null and endTime != null">
+				AND apply_time between #{beginTime} and #{endTime}
+			</if>
+		</where>
+	</select>
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.BasePrivilegeExtendMapper">
+  <select id="selectAll" resultMap="PrivilegeTreeResultMap">
+    SELECT *
+    FROM base_privilege
+    WHERE parent_id is null
+    ORDER BY num DESC
+  </select>
+
+  <select id="selectByParentId" resultMap="PrivilegeTreeResultMap">
+  <!--<select id="selectByParentId" resultType="com.jzfw.bean.BasePrivilege">-->
+    SELECT *
+    FROM base_privilege
+    WHERE parent_id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByRoleId" resultMap="com.jzfw.dao.BasePrivilegeMapper.BaseResultMap">
+    SELECT p.*
+    from base_privilege p, base_role r, base_role_privilege rp
+    WHERE rp.role_id = r.id
+    AND rp.privilege_id = p.id
+    AND r.id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByUserId" resultMap="com.jzfw.dao.BasePrivilegeMapper.BaseResultMap">
+    select p.*
+    from base_user u ,base_user_role ur, base_role r, base_role_privilege rp ,base_privilege p
+    where u.id = ur.user_id
+    and r.id = ur.role_id
+    and rp.role_id = r.id
+    and rp.privilege_id = p.id
+    and u.id = #{id,jdbcType=BIGINT}
+    ORDER BY p.num DESC
+  </select>
+
+  <select id="selectMenuByUserId" resultMap="com.jzfw.dao.BasePrivilegeMapper.BaseResultMap">
+    select p.*
+    from base_user u ,base_user_role ur, base_role r, base_role_privilege rp ,base_privilege p
+    where u.id = ur.user_id
+    and r.id = ur.role_id
+    and rp.role_id = r.id
+    and rp.privilege_id = p.id
+    and u.id = #{id,jdbcType=BIGINT}
+    and p.type = 'menu'
+    ORDER BY p.num DESC
+  </select>
+
+  <resultMap id="PrivilegeTreeResultMap" type="com.jzfw.vm.PrivilegeTree" extends="com.jzfw.dao.BasePrivilegeMapper.BaseResultMap">
+    <collection property="children" column="id" select="selectByParentId"></collection>
+  </resultMap>
+
+</mapper>

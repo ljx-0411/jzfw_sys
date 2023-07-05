@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.ProductExtendMapper">
+
+	<select id="pageQuery"
+		resultMap="ProjectExtendResultMap">
+		SELECT *
+		FROM jz_product
+		<where>
+			<if test="name != null">
+				AND name like concat('%',#{name},'%')
+			</if>
+			<if test="status != null">
+				AND status = #{ status }
+			</if>
+			<if test="productCategoryId != null">
+				AND product_category_id = #{ productCategoryId }
+			</if>
+		</where>
+		ORDER BY id DESC
+		limit ${(page-1)*pageSize},${pageSize}
+	</select>
+
+	<select id="count" resultType="long">
+		SELECT count(*)
+		FROM jz_product
+		<where>
+			<if test="name != null">
+				AND name like concat('%',#{name},'%')
+			</if>
+			<if test="status != null">
+				AND status = #{ status }
+			</if>
+			<if test="productCategoryId != null">
+				AND product_category_id = #{ productCategoryId }
+			</if>
+		</where>
+	</select>
+	
+	<resultMap type="com.jzfw.bean.extend.ProductExtend" id="ProjectExtendResultMap" extends="com.jzfw.dao.ProductMapper.BaseResultMap">
+		<association property="category" column="product_category_id" select="com.jzfw.dao.ProductCategoryMapper.selectByPrimaryKey"></association>
+	</resultMap>
+</mapper>

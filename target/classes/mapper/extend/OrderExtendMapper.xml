@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfw.dao.extend.OrderExtendMapper">
+
+	<select id="selectById" resultMap="OrderExtendResultMap">
+		SELECT *
+		FROM jz_order
+		WHERE id = #{id}
+	</select>
+
+	<select id="pageQuery"
+		resultMap="OrderExtendResultMap">
+		SELECT *
+		FROM jz_order
+		<where>
+			<if test="status != null">
+				AND status = #{ status }
+			</if>
+			<if test="beginTime != null and endTime != null">
+				AND order_time between #{beginTime} and #{endTime}
+			</if>
+			<if test="customerId != null">
+				AND customer_id = #{ customerId }
+			</if>
+			<if test="employeeId != null">
+				AND employee_id = #{ employeeId }
+			</if>
+		</where>
+		ORDER BY id DESC
+		limit ${(page-1)*pageSize},${pageSize}
+	</select>
+
+	<select id="count" resultType="long">
+		SELECT count(*)
+		FROM jz_order
+		<where>
+			<if test="status != null">
+				AND status = #{ status }
+			</if>
+			<if test="beginTime != null and endTime != null">
+				AND order_time between #{beginTime} and #{endTime}
+			</if>
+			<if test="customerId != null">
+				AND customer_id = #{ customerId }
+			</if>
+			<if test="employeeId != null">
+				AND employee_id = #{ employeeId }
+			</if>
+		</where>
+	</select>
+	
+	<resultMap type="com.jzfw.bean.extend.OrderExtend"
+		id="OrderExtendResultMap" 
+		extends="com.jzfw.dao.OrderMapper.BaseResultMap">
+		<association property="customer" column="customer_id" select="com.jzfw.dao.BaseUserMapper.selectByPrimaryKey"></association>
+		<association property="employee" column="employee_id" select="com.jzfw.dao.BaseUserMapper.selectByPrimaryKey"></association>
+		<association property="address" column="address_id" select="com.jzfw.dao.AddressMapper.selectByPrimaryKey"></association>
+		<collection property="orderLines" column="id" select="com.jzfw.dao.extend.OrderLineExtendMapper.selectByOrderId"></collection>
+		<collection property="comments" column="id" select="com.jzfw.dao.extend.OrderCommentExtendMapper.selectByOrderId"></collection>
+	</resultMap>
+</mapper>
